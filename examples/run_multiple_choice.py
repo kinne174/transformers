@@ -22,7 +22,7 @@ import glob
 import logging
 import os
 import random
-
+import getpass
 
 import numpy as np
 import torch
@@ -43,9 +43,16 @@ from transformers import (WEIGHTS_NAME, BertConfig,
                                   XLNetTokenizer, RobertaConfig,
                                   RobertaForMultipleChoice, RobertaTokenizer)
 
-from transformers import AdamW, get_linear_schedule_with_warmup
+if getpass.getuser() == 'Mitch':
 
-from utils_multiple_choice import (convert_examples_to_features, processors)
+    from transformers import AdamW, get_linear_schedule_with_warmup
+
+    from examples.utils_multiple_choice import (convert_examples_to_features, processors)
+else:
+    from transformers import AdamW
+    from transformers import WarmupLinearSchedule as get_linear_schedule_with_warmup
+
+    from utils_multiple_choice import (convert_examples_to_features, processors)
 
 logger = logging.getLogger(__name__)
 

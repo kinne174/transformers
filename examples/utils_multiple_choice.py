@@ -388,8 +388,6 @@ def convert_examples_to_features(
     return features
 
 
-
-
 processors = {
     "race": RaceProcessor,
     "swag": SwagProcessor,
