@@ -184,6 +184,9 @@ def read_squad_examples(input_file, is_training, version_2_with_negative):
                     end_position=end_position,
                     is_impossible=is_impossible)
                 examples.append(example)
+
+        if len(examples) > 10:
+            break
     return examples
 
 
@@ -1014,3 +1017,32 @@ def _compute_softmax(scores):
     for score in exp_scores:
         probs.append(score / total_sum)
     return probs
+
+
+if __name__ == '__main__':
+    input_file = 'C://Users/Mitch/PycharmProjects/SQuAD/data/train-v1.1.json'
+    evaluate = False
+    version_2_with_negative = False
+
+    examples = read_squad_examples(input_file=input_file,
+                                   is_training=not evaluate,
+                                   version_2_with_negative=version_2_with_negative)
+
+    from transformers import BertTokenizer
+
+    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased',
+                                    do_lower_case=True,
+                                    cache_dir=None)
+
+    features = convert_examples_to_features(examples=examples,
+                                            tokenizer=tokenizer,
+                                            max_seq_length=512,
+                                            doc_stride=128,
+                                            max_query_length=512,
+                                            is_training=not evaluate,
+                                            cls_token_segment_id=0,
+                                            pad_token_segment_id=0,
+                                            cls_token_at_end=False,
+                                            sequence_a_is_doc=False)
+
+    print('hi')

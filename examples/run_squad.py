@@ -23,6 +23,7 @@ import os
 import random
 import glob
 import timeit
+import getpass
 
 import numpy as np
 import torch
@@ -45,17 +46,30 @@ from transformers import (WEIGHTS_NAME, BertConfig,
                                   XLNetTokenizer,
                                   DistilBertConfig, DistilBertForQuestionAnswering, DistilBertTokenizer)
 
-from transformers import AdamW
-from transformers import WarmupLinearSchedule as get_linear_schedule_with_warmup
+if getpass.getuser() == 'Mitch':
+    from transformers import AdamW, get_linear_schedule_with_warmup
 
-from utils_squad import (read_squad_examples, convert_examples_to_features,
-                         RawResult, write_predictions,
-                         RawResultExtended, write_predictions_extended)
+    from examples.utils_squad import (read_squad_examples, convert_examples_to_features,
+                             RawResult, write_predictions,
+                             RawResultExtended, write_predictions_extended)
 
-# The follwing import is the official SQuAD evaluation script (2.0).
-# You can remove it from the dependencies if you are using this script outside of the library
-# We've added it here for automated tests (see examples/test_examples.py file)
-from utils_squad_evaluate import EVAL_OPTS, main as evaluate_on_squad
+    # The follwing import is the official SQuAD evaluation script (2.0).
+    # You can remove it from the dependencies if you are using this script outside of the library
+    # We've added it here for automated tests (see examples/test_examples.py file)
+    from examples.utils_squad_evaluate import EVAL_OPTS, main as evaluate_on_squad
+
+else:
+    from transformers import AdamW
+    from transformers import WarmupLinearSchedule as get_linear_schedule_with_warmup
+
+    from utils_squad import (read_squad_examples, convert_examples_to_features,
+                             RawResult, write_predictions,
+                             RawResultExtended, write_predictions_extended)
+
+    # The follwing import is the official SQuAD evaluation script (2.0).
+    # You can remove it from the dependencies if you are using this script outside of the library
+    # We've added it here for automated tests (see examples/test_examples.py file)
+    from utils_squad_evaluate import EVAL_OPTS, main as evaluate_on_squad
 
 logger = logging.getLogger(__name__)
 
@@ -193,6 +207,8 @@ def train(args, train_dataset, model, tokenizer):
                     model_to_save.save_pretrained(output_dir)
                     torch.save(args, os.path.join(output_dir, 'training_args.bin'))
                     logger.info("Saving model checkpoint to %s", output_dir)
+
+                    # TODO what needs to happen next: create a script to load model file and create features based on that model
 
             if args.max_steps > 0 and global_step > args.max_steps:
                 epoch_iterator.close()
@@ -365,6 +381,8 @@ def main():
                         help="The output directory where the model checkpoints and predictions will be written.")
 
     ## Other parameters
+    parser.add_argument("--do_output_hidden_states", action="store_true",
+                        help="In the outputs tuple should the hidden states be included")
     parser.add_argument("--config_name", default="", type=str,
                         help="Pretrained config name or path if not the same as model_name")
     parser.add_argument("--tokenizer_name", default="", type=str,
@@ -488,7 +506,8 @@ def main():
     args.model_type = args.model_type.lower()
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     config = config_class.from_pretrained(args.config_name if args.config_name else args.model_name_or_path,
-                                          cache_dir=args.cache_dir if args.cache_dir else None)
+                                          cache_dir=args.cache_dir if args.cache_dir else None,
+                                          output_hidden_states=args.output_hidden_states)
     tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name if args.tokenizer_name else args.model_name_or_path,
                                                 do_lower_case=args.do_lower_case,
                                                 cache_dir=args.cache_dir if args.cache_dir else None)
