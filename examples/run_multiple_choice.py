@@ -155,6 +155,8 @@ def train(args, train_dataset, model, tokenizer):
                       'token_type_ids': batch[2] if args.model_type in ['bert', 'xlnet'] else None,  # XLM don't use segment_ids
                       'labels':         batch[3]}
 
+            logging.info('Size of batch elements is {}'.format(' '.join([str(t.element_size() * t.n_element() * 1e-9) + ' GB' for t in batch])))
+
             logging.info(" Memory of gpu allocated in training is {} GB".format(torch.cuda.memory_allocated(args.device) * 1e-9))
             logging.info(" Memory of gpu cached in trainig is {} GB".format(torch.cuda.memory_cached(args.device) * 1e-9))
 
