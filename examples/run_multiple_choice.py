@@ -135,8 +135,8 @@ def train(args, train_dataset, model, tokenizer):
                    args.train_batch_size * args.gradient_accumulation_steps * (torch.distributed.get_world_size() if args.local_rank != -1 else 1))
     logger.info("  Gradient Accumulation steps = %d", args.gradient_accumulation_steps)
     logger.info("  Total optimization steps = %d", t_total)
-    logging.info(" Memory of gpu allocated before training = {}".format(torch.cuda.memory_allocated(args.device)))
-    logging.info(" Memory of gpu cached before training = {}".format(torch.cuda.memory_cached(args.device)))
+    logging.info(" Memory of gpu allocated before training = {}".format(torch.cuda.memory_allocated(args.device) * 1e-9))
+    logging.info(" Memory of gpu cached before training = {}".format(torch.cuda.memory_cached(args.device) * 1e-9))
 
     global_step = 0
     tr_loss, logging_loss = 0.0, 0.0
@@ -155,8 +155,8 @@ def train(args, train_dataset, model, tokenizer):
                       'token_type_ids': batch[2] if args.model_type in ['bert', 'xlnet'] else None,  # XLM don't use segment_ids
                       'labels':         batch[3]}
 
-            logging.info(" Memory of gpu allocated in training = {}".format(torch.cuda.memory_allocated(args.device)))
-            logging.info(" Memory of gpu cached in trainig = {}".format(torch.cuda.memory_cached(args.device)))
+            logging.info(" Memory of gpu allocated in training = {}".format(torch.cuda.memory_allocated(args.device) * 1e-9))
+            logging.info(" Memory of gpu cached in trainig = {}".format(torch.cuda.memory_cached(args.device) * 1e-9))
 
             outputs = model(**inputs)
             loss = outputs[0]  # model outputs are always tuple in transformers (see doc)
@@ -466,8 +466,7 @@ def main():
 
     logging.info('Device used: {}'.format(device))
     logging.info('Number of gpus: {}'.format(args.n_gpu))
-    if device == 'cuda':
-        logging.info('Total memory on gpu is {}'.format(torch.cuda.get_device_properties(device).total_memory))
+    logging.info('Total memory on gpu is {}'.format(torch.cuda.get_device_properties(device).total_memory))
 
     # Set seed
     set_seed(args)
@@ -501,6 +500,8 @@ def main():
     if args.local_rank == 0:
         torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
 
+    logging.info(" Memory of gpu allocated before model loaded = {}".format(torch.cuda.memory_allocated(args.device) * 1e-9))
+    logging.info(" Memory of gpu cached before model loaded = {}".format(torch.cuda.memory_cached(args.device) * 1e-9))
     model.to(args.device)
 
     logger.info("Training/evaluation parameters %s", args)
