@@ -505,12 +505,14 @@ def main():
     if args.local_rank == 0:
         torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
 
-    logging.info(" Memory of gpu allocated before model loaded is {} GB".format(torch.cuda.memory_allocated(args.device) * 1e-9))
-    logging.info(" Memory of gpu cached before model loaded is {} GB".format(torch.cuda.memory_cached(args.device) * 1e-9))
+    if torch.cuda.is_available():
+        logging.info(" Memory of gpu allocated before model loaded is {} GB".format(torch.cuda.memory_allocated(args.device) * 1e-9))
+        logging.info(" Memory of gpu cached before model loaded is {} GB".format(torch.cuda.memory_cached(args.device) * 1e-9))
     model.to(args.device)
 
-    logging.info(" Memory of gpu allocated after model loaded is {} GB".format(torch.cuda.memory_allocated(args.device) * 1e-9))
-    logging.info(" Memory of gpu cached after model loaded is {} GB".format(torch.cuda.memory_cached(args.device) * 1e-9))
+    if torch.cuda.is_available():
+        logging.info(" Memory of gpu allocated after model loaded is {} GB".format(torch.cuda.memory_allocated(args.device) * 1e-9))
+        logging.info(" Memory of gpu cached after model loaded is {} GB".format(torch.cuda.memory_cached(args.device) * 1e-9))
 
     logger.info("Training/evaluation parameters %s", args)
     best_steps = 0
