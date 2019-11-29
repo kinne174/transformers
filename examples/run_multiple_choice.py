@@ -44,6 +44,7 @@ from transformers import (WEIGHTS_NAME, BertConfig,
                                   RobertaForMultipleChoice, RobertaTokenizer)
 
 from transformers import AdamW, get_linear_schedule_with_warmup
+from torchsummary import summary
 
 if getpass.getuser() == 'Mitch':
 
@@ -589,4 +590,23 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    logging.basicConfig(filename='/home/kinne174/private/PythonProjects/Output/transformers_gpu/logging.log',
+                        level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s',
+                        datefmt='%m/%d/%Y %I:%M:%S %p')
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    pretrained_dict = {'bert': ('bert-large-uncased-whole-word-masking-finetuned-squad', True),
+                       'roberta': ('roberta-large-mnli', True),
+                       'xlnet': ('xlnet-base-cased', False)}
+    for modelname, (config_class, model_class, tokenizer_class) in MODEL_CLASSES.items():
+        model_name_or_path, do_lower = pretrained_dict[modelname]
+        config = config_class.from_pretrained(model_name_or_path)
+        tokenizer = tokenizer_class.from_pretrained(
+            model_name_or_path,
+            do_lower_case=do_lower)
+        model = model_class.from_pretrained(model_name_or_path, config=config)
+        model.to(device)
+        input_size = (8, 4, 512)
+        logging.info(summary(model, input_size))
+
+    # main()
