@@ -380,8 +380,6 @@ def main():
                         help="The output directory where the model checkpoints and predictions will be written.")
 
     ## Other parameters
-    parser.add_argument("--do_output_hidden_states", action="store_true",
-                        help="In the outputs tuple should the hidden states be included")
     parser.add_argument("--config_name", default="", type=str,
                         help="Pretrained config name or path if not the same as model_name")
     parser.add_argument("--tokenizer_name", default="", type=str,
@@ -505,8 +503,7 @@ def main():
     args.model_type = args.model_type.lower()
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     config = config_class.from_pretrained(args.config_name if args.config_name else args.model_name_or_path,
-                                          cache_dir=args.cache_dir if args.cache_dir else None,
-                                          output_hidden_states=args.output_hidden_states)
+                                          cache_dir=args.cache_dir if args.cache_dir else None)
     tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name if args.tokenizer_name else args.model_name_or_path,
                                                 do_lower_case=args.do_lower_case,
                                                 cache_dir=args.cache_dir if args.cache_dir else None)
