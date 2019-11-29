@@ -46,8 +46,9 @@ from transformers import (WEIGHTS_NAME, BertConfig,
                                   XLNetTokenizer,
                                   DistilBertConfig, DistilBertForQuestionAnswering, DistilBertTokenizer)
 
+from transformers import AdamW, get_linear_schedule_with_warmup
+
 if getpass.getuser() == 'Mitch':
-    from transformers import AdamW, get_linear_schedule_with_warmup
 
     from examples.utils_squad import (read_squad_examples, convert_examples_to_features,
                              RawResult, write_predictions,
@@ -59,8 +60,6 @@ if getpass.getuser() == 'Mitch':
     from examples.utils_squad_evaluate import EVAL_OPTS, main as evaluate_on_squad
 
 else:
-    from transformers import AdamW
-    from transformers import WarmupLinearSchedule as get_linear_schedule_with_warmup
 
     from utils_squad import (read_squad_examples, convert_examples_to_features,
                              RawResult, write_predictions,
