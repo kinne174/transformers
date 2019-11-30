@@ -607,7 +607,7 @@ if __name__ == "__main__":
                 do_lower_case=do_lower)
             model = model_class.from_pretrained(model_name_or_path, config=config)
             model.to(device)
-            input_size = (8, 4, 512)
-            logging.info(summary(model, input_size))
+            print(model)
+            logging.info(model)
     else:
         main()
