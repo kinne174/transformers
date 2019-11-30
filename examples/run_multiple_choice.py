@@ -590,7 +590,7 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(filename='/home/kinne174/private/PythonProjects/Output/transformers_gpu/logging.log',
+    logging.basicConfig(filename='/home/kinne174/private/Output/transformers_gpu/logging.log',
                         level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p')
 
