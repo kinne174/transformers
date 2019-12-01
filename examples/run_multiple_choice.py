@@ -392,6 +392,8 @@ def main():
                         help="Run evaluation during training at each logging step.")
     parser.add_argument("--do_lower_case", action='store_true',
                         help="Set this flag if you are using an uncased model.")
+    parser.add_argument("--do_output_hidden_states", action='store_true',
+                        help="Set this flag if the model should output the hidden states")
 
     parser.add_argument("--per_gpu_train_batch_size", default=8, type=int,
                         help="Batch size per GPU/CPU for training.")
@@ -494,7 +496,8 @@ def main():
     config = config_class.from_pretrained(args.config_name if args.config_name else args.model_name_or_path,
                                           num_labels=num_labels,
                                           finetuning_task=args.task_name,
-                                          cache_dir=args.cache_dir if args.cache_dir else None)
+                                          cache_dir=args.cache_dir if args.cache_dir else None,
+                                          )
     tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name if args.tokenizer_name else args.model_name_or_path,
                                                 do_lower_case=args.do_lower_case,
                                                 cache_dir=args.cache_dir if args.cache_dir else None)
@@ -590,24 +593,4 @@ def main():
 
 
 if __name__ == "__main__":
-    if torch.cuda.is_available():
-        logging.basicConfig(filename='/home/kinne174/private/Output/transformers_gpu/logging.log',
-                            level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s',
-                            datefmt='%m/%d/%Y %I:%M:%S %p')
-
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        pretrained_dict = {'bert': ('bert-large-uncased-whole-word-masking-finetuned-squad', True),
-                           'roberta': ('roberta-large-mnli', True),
-                           'xlnet': ('xlnet-base-cased', False)}
-        for modelname, (config_class, model_class, tokenizer_class) in MODEL_CLASSES.items():
-            model_name_or_path, do_lower = pretrained_dict[modelname]
-            config = config_class.from_pretrained(model_name_or_path)
-            tokenizer = tokenizer_class.from_pretrained(
-                model_name_or_path,
-                do_lower_case=do_lower)
-            model = model_class.from_pretrained(model_name_or_path, config=config)
-            model.to(device)
-            print(model)
-            logging.info(model)
-    else:
-        main()
+    main()
