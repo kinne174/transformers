@@ -394,6 +394,8 @@ def main():
                         help="Set this flag if you are using an uncased model.")
     parser.add_argument("--do_output_hidden_states", action='store_true',
                         help="Set this flag if the model should output the hidden states")
+    parser.add_argument("--do_output_attentions", action='store_true',
+                        help="Set this flag if the model should output the attentions")
 
     parser.add_argument("--per_gpu_train_batch_size", default=8, type=int,
                         help="Batch size per GPU/CPU for training.")
@@ -497,7 +499,8 @@ def main():
                                           num_labels=num_labels,
                                           finetuning_task=args.task_name,
                                           cache_dir=args.cache_dir if args.cache_dir else None,
-                                          )
+                                          output_hidden_states=args.do_output_hidden_states,
+                                          output_attentions=args.do_output_attentions)
     tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name if args.tokenizer_name else args.model_name_or_path,
                                                 do_lower_case=args.do_lower_case,
                                                 cache_dir=args.cache_dir if args.cache_dir else None)
