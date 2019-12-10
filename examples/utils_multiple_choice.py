@@ -338,12 +338,10 @@ def convert_examples_to_features(
                 text_b,
                 add_special_tokens=True,
                 max_length=max_length,
-                truncation_strategy='only_second',
+                truncation_strategy='only_first',
             )
             if 'num_truncated_tokens' in inputs and inputs['num_truncated_tokens'] > 0:
-                logger.info('Attention! you are cropping tokens (swag task is ok). '
-                        'If you are training ARC and RACE and you are popping question + options,'
-                        'you need to try to use a bigger max seq length!')
+                logger.info('Attention! you are cropping tokens (ARC ok).')
 
             input_ids, token_type_ids = inputs["input_ids"], inputs["token_type_ids"]
 
