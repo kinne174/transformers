@@ -289,8 +289,6 @@ class ArcProcessor(DataProcessor):
                                   options[2]["para"].replace("_", ""), options[3]["para"].replace("_", "")],
                         endings=[options[0]["text"], options[1]["text"], options[2]["text"], options[3]["text"]],
                         label=truth))
-            if len(examples) > 50:
-                break
 
         if type == "train":
             assert len(examples) > 1
@@ -368,7 +366,7 @@ def convert_examples_to_features(
 
         label = label_map[example.label]
 
-        if ex_index < 2:
+        if ex_index < 1:
             logger.info("*** Example ***")
             logger.info("race_id: {}".format(example.example_id))
             for choice_idx, (input_ids, attention_mask, token_type_ids) in enumerate(choices_features):
