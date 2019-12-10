@@ -108,6 +108,9 @@ def evaluate(args, model, tokenizer, prefix="", test=False, evaluation=True):
                 outputs = model(**inputs)
                 tmp_eval_loss, logits = outputs[:2]
                 all_hidden_states = outputs[2] # this is a list of tensors each with dimension (batch length x sequence length x embedding size), batch length is usually 8*4 = 32
+                '''
+                the first tensor in the list is the embeddings and the last tensor in the list is the output from the last layer
+                '''
 
                 eval_loss += tmp_eval_loss.mean().item()
             nb_eval_steps += 1
@@ -187,8 +190,8 @@ def load_and_cache_examples(args, task, tokenizer, evaluate=False, test=False):
             label_list,
             args.max_seq_length,
             tokenizer,
-            pad_on_left=bool(args.model_type in ['xlnet']),                 # pad on the left for xlnet
-            pad_token_segment_id=4 if args.model_type in ['xlnet'] else 0
+            pad_on_left=False,                 # pad on the left for xlnet
+            pad_token_segment_id=0
         )
         if args.local_rank in [-1, 0]:
             logger.info("Saving features into cached file %s", cached_features_file)
@@ -341,11 +344,7 @@ def main(args=None):
 
     args.model_type = args.model_type.lower()
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
-    config = config_class.from_pretrained(args.config_name if args.config_name else args.model_name_or_path,
-                                          num_labels=num_labels,
-                                          finetuning_task=args.task_name,
-                                          cache_dir=args.cache_dir if args.cache_dir else None,
-                                          )
+
     tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name if args.tokenizer_name else args.model_name_or_path,
                                                 do_lower_case=args.do_lower_case,
                                                 cache_dir=args.cache_dir if args.cache_dir else None)
@@ -432,9 +431,9 @@ if __name__ == '__main__':
 
         args = TempArgs(data_dir='../../ARC/ARC-with-context/',
                         model_type='roberta',
-                        model_name_or_path='runs/checkpoint-200/',
+                        model_name_or_path='runs/checkpoint-50/',
                         task_name='ARC',
-                        output_dir='runs/checkpoint-200/',
+                        output_dir='runs/checkpoint-50/',
                         max_seq_length=512,
                         do_eval=True,
                         do_test=False,

@@ -136,9 +136,6 @@ def train(args, train_dataset, model, tokenizer):
                    args.train_batch_size * args.gradient_accumulation_steps * (torch.distributed.get_world_size() if args.local_rank != -1 else 1))
     logger.info("  Gradient Accumulation steps = %d", args.gradient_accumulation_steps)
     logger.info("  Total optimization steps = %d", t_total)
-    if torch.cuda.is_available():
-        logging.info(" Memory of gpu allocated before training = {}".format(torch.cuda.memory_allocated(args.device) * 1e-9))
-        logging.info(" Memory of gpu cached before training = {}".format(torch.cuda.memory_cached(args.device) * 1e-9))
 
     global_step = 0
     tr_loss, logging_loss = 0.0, 0.0
@@ -156,12 +153,6 @@ def train(args, train_dataset, model, tokenizer):
                       'attention_mask': batch[1],
                       'token_type_ids': batch[2] if args.model_type in ['bert', 'xlnet'] else None,  # XLM don't use segment_ids
                       'labels':         batch[3]}
-
-            logging.info('Size of batch elements is {}'.format(' '.join([str(t.element_size() * t.nelement() * 1e-9) + ' GB' for t in batch])))
-
-            if torch.cuda.is_available():
-                logging.info(" Memory of gpu allocated in training is {} GB".format(torch.cuda.memory_allocated(args.device) * 1e-9))
-                logging.info(" Memory of gpu cached in trainig is {} GB".format(torch.cuda.memory_cached(args.device) * 1e-9))
 
             outputs = model(**inputs)
             loss = outputs[0]  # model outputs are always tuple in transformers (see doc)
@@ -475,8 +466,6 @@ def main():
 
     logging.info('Device used: {}'.format(device))
     logging.info('Number of gpus: {}'.format(args.n_gpu))
-    if torch.cuda.is_available():
-        logging.info('Total memory on gpu is {} GB'.format(torch.cuda.get_device_properties(device).total_memory * 1e-9))
 
     # Set seed
     set_seed(args)
@@ -512,14 +501,7 @@ def main():
     if args.local_rank == 0:
         torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
 
-    if torch.cuda.is_available():
-        logging.info(" Memory of gpu allocated before model loaded is {} GB".format(torch.cuda.memory_allocated(args.device) * 1e-9))
-        logging.info(" Memory of gpu cached before model loaded is {} GB".format(torch.cuda.memory_cached(args.device) * 1e-9))
     model.to(args.device)
-
-    if torch.cuda.is_available():
-        logging.info(" Memory of gpu allocated after model loaded is {} GB".format(torch.cuda.memory_allocated(args.device) * 1e-9))
-        logging.info(" Memory of gpu cached after model loaded is {} GB".format(torch.cuda.memory_cached(args.device) * 1e-9))
 
     logger.info("Training/evaluation parameters %s", args)
     best_steps = 0

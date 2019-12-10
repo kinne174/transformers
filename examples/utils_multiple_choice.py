@@ -289,6 +289,8 @@ class ArcProcessor(DataProcessor):
                                   options[2]["para"].replace("_", ""), options[3]["para"].replace("_", "")],
                         endings=[options[0]["text"], options[1]["text"], options[2]["text"], options[3]["text"]],
                         label=truth))
+            if len(examples) > 50:
+                break
 
         if type == "train":
             assert len(examples) > 1
@@ -336,10 +338,11 @@ def convert_examples_to_features(
                 text_b,
                 add_special_tokens=True,
                 max_length=max_length,
+                truncation_strategy='only_second',
             )
             if 'num_truncated_tokens' in inputs and inputs['num_truncated_tokens'] > 0:
                 logger.info('Attention! you are cropping tokens (swag task is ok). '
-                        'If you are training ARC and RACE and you are poping question + options,'
+                        'If you are training ARC and RACE and you are popping question + options,'
                         'you need to try to use a bigger max seq length!')
 
             input_ids, token_type_ids = inputs["input_ids"], inputs["token_type_ids"]
